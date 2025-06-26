@@ -39,10 +39,11 @@ var (
 	// taskConfigSpec is the hcl specification for the driver config section of
 	// a task within a job. It is returned in the TaskConfigSchema RPC
 	taskConfigSpec = hclspec.NewObject(map[string]*hclspec.Spec{
-		"executable": hclspec.NewAttr("executable", "string", false),
-		"args":       hclspec.NewAttr("args", "list(string)", false),
-		"username":   hclspec.NewAttr("username", "string", false),
-		"password":   hclspec.NewAttr("password", "string", false),
+		"executable":         hclspec.NewAttr("executable", "string", false),
+		"args":               hclspec.NewAttr("args", "list(string)", false),
+		"service_start_name": hclspec.NewAttr("service_start_name", "string", false),
+		"username":           hclspec.NewAttr("username", "string", false),
+		"password":           hclspec.NewAttr("password", "string", false),
 	})
 
 	// capabilities indicates what optional features this driver supports
@@ -95,10 +96,11 @@ type TaskConfig struct {
 	// This struct is the decoded version of the schema defined in the
 	// taskConfigSpec variable above. It's used to convert the string
 	// configuration for the task into Go contructs.
-	Executable string   `codec:"executable"`
-	Args       []string `codec:"args"`
-	Username   string   `codec:"username"`
-	Password   string   `codec:"password"`
+	Executable       string   `codec:"executable"`
+	Args             []string `codec:"args"`
+	ServiceStartName string   `codec:"service_start_name"`
+	Username         string   `codec:"username"`
+	Password         string   `codec:"password"`
 }
 
 // TaskState is the state which is encoded in the handle returned in
@@ -284,7 +286,7 @@ func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drive
 		driverConfig.Executable = filepath.Join(cfg.TaskDir().Dir, driverConfig.Executable)
 	}
 
-	if err = d.client.CreateService(serviceName, driverConfig.Executable, driverConfig.Username, driverConfig.Password, driverConfig.Args); err != nil {
+	if err = d.client.CreateService(serviceName, driverConfig.Executable, driverConfig.ServiceStartName, driverConfig.Username, driverConfig.Password, driverConfig.Args); err != nil {
 		return nil, nil, err
 	}
 

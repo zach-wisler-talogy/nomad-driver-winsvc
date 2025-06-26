@@ -28,7 +28,7 @@ type Win32Service struct {
 }
 
 type ServiceClientInterface interface {
-	CreateService(name string, executable string, username string, password string, args []string) error
+	CreateService(name string, executable string, service_start_name string, username string, password string, args []string) error
 	RemoveService(name string) error
 	StartService(name string) error
 	StopService(name string) error
@@ -55,7 +55,7 @@ type wmiProcessStats struct {
 	WorkingSetPrivate uint64
 }
 
-func (c ServiceClient) CreateService(name string, executable string, username string, password string, args []string) error {
+func (c ServiceClient) CreateService(name string, executable string, service_start_name string, username string, password string, args []string) error {
 	c.logger.Debug("Creating service", "name", name, "executable", executable)
 	mux.Lock()
 	defer mux.Unlock()
@@ -73,9 +73,13 @@ func (c ServiceClient) CreateService(name string, executable string, username st
 	}
 	config := mgr.Config{DisplayName: name, Description: "Nomad managed service instance"}
 
+	// If this is left empty it should opt to use LOCAL SYSTEM by default
 	if username != "" && password != "" {
 		config.ServiceStartName = username
 		config.Password = password
+	} else {
+		// Force it to use LocalSystem if no username/password value was supplied
+		config.ServiceStartName = "LocalSystem"
 	}
 
 	s, err = m.CreateService(name, executable, config, args...)
