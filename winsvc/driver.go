@@ -32,7 +32,7 @@ var (
 	pluginInfo = &base.PluginInfoResponse{
 		Type:              base.PluginTypeDriver,
 		PluginApiVersions: []string{drivers.ApiVersion010},
-		PluginVersion:     "1.0.2",
+		PluginVersion:     "1.0.3",
 		Name:              pluginName,
 	}
 

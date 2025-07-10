@@ -66,7 +66,7 @@ func (c ServiceClient) CreateEnvironmentVariablesFile(environment_variables map[
 	}
 
 	// Define the full file path
-	filePath := filepath.Join(task_dir, ".env")
+	filePath := filepath.Join(task_dir, "/local/.env")
 
 	// Open the file in append mode, create if it doesn't exist
 	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
