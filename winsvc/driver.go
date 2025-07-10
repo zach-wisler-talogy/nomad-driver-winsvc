@@ -286,10 +286,6 @@ func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drive
 		driverConfig.Executable = filepath.Join(cfg.TaskDir().Dir, driverConfig.Executable)
 	}
 
-	if err = d.client.CreateEnvironmentVariablesFile(cfg.Env, cfg.AllocDir, cfg.TaskDir().Dir); err != nil {
-		return nil, nil, err
-	}
-
 	if err = d.client.CreateService(serviceName, driverConfig.Executable, driverConfig.ServiceStartName, driverConfig.Username, driverConfig.Password, driverConfig.Args); err != nil {
 		return nil, nil, err
 	}
