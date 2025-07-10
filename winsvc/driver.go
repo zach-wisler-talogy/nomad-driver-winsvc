@@ -32,14 +32,14 @@ var (
 	pluginInfo = &base.PluginInfoResponse{
 		Type:              base.PluginTypeDriver,
 		PluginApiVersions: []string{drivers.ApiVersion010},
-		PluginVersion:     "0.0.4-dev",
+		PluginVersion:     "0.0.1",
 		Name:              pluginName,
 	}
 
 	// taskConfigSpec is the hcl specification for the driver config section of
 	// a task within a job. It is returned in the TaskConfigSchema RPC
 	taskConfigSpec = hclspec.NewObject(map[string]*hclspec.Spec{
-		"executable":         hclspec.NewAttr("executable", "string", false),
+		"executable":         hclspec.NewAttr("executable", "string", true),
 		"args":               hclspec.NewAttr("args", "list(string)", false),
 		"service_start_name": hclspec.NewAttr("service_start_name", "string", false),
 		"username":           hclspec.NewAttr("username", "string", false),
@@ -284,6 +284,10 @@ func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drive
 
 	if !filepath.IsAbs(driverConfig.Executable) {
 		driverConfig.Executable = filepath.Join(cfg.TaskDir().Dir, driverConfig.Executable)
+	}
+
+	if err = d.client.CreateEnvironmentVariablesFile(cfg.Env, cfg.AllocDir, cfg.TaskDir().Dir); err != nil {
+		return nil, nil, err
 	}
 
 	if err = d.client.CreateService(serviceName, driverConfig.Executable, driverConfig.ServiceStartName, driverConfig.Username, driverConfig.Password, driverConfig.Args); err != nil {
