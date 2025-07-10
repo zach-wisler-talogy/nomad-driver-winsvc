@@ -271,7 +271,7 @@ func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drive
 	serviceName := fmt.Sprintf("nomad.winsvc.%s.%s", cfg.JobName, cfg.AllocID)
 
 	// Setup environment variables.
-	// NOMAD_WINSVC_* are keywords for applying user/pass info for a given Application Pool in a secure manner
+	// NOMAD_WINSVC_* are keywords for applying user/pass info for a given service in a secure manner
 	for key, val := range cfg.Env {
 		switch key {
 		case "NOMAD_WINSVC_USERNAME":

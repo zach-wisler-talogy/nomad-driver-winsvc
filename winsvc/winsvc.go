@@ -79,7 +79,7 @@ func (c ServiceClient) CreateService(name string, executable string, service_sta
 		config.Password = password
 	} else {
 		// Force it to use LocalSystem if no username/password value was supplied
-		config.ServiceStartName = "LocalSystem"
+		config.ServiceStartName = service_start_name
 	}
 
 	s, err = m.CreateService(name, executable, config, args...)
