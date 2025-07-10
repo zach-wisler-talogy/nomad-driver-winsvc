@@ -2,7 +2,9 @@ package winsvc
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"sync"
 	"syscall"
 
@@ -28,6 +30,7 @@ type Win32Service struct {
 }
 
 type ServiceClientInterface interface {
+	CreateEnvironmentVariablesFile(environment_variables map[string]string, alloc_dir string, task_dir string) error
 	CreateService(name string, executable string, service_start_name string, username string, password string, args []string) error
 	RemoveService(name string) error
 	StartService(name string) error
@@ -53,6 +56,36 @@ type wmiProcessStats struct {
 	KernelModeTime    uint64
 	UserModeTime      uint64
 	WorkingSetPrivate uint64
+}
+
+func (c ServiceClient) CreateEnvironmentVariablesFile(environment_variables map[string]string, alloc_dir string, task_dir string) error {
+	c.logger.Debug("Creating environment variables file")
+
+	for key, val := range environment_variables {
+		fmt.Printf(key, val)
+	}
+
+	// Define the full file path
+	filePath := filepath.Join(task_dir, ".env")
+
+	// Open the file in append mode, create if it doesn't exist
+	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open env file: %w", err)
+	}
+	defer f.Close()
+
+	// Write each environment variable in "KEY=VALUE" format
+	for key, val := range environment_variables {
+		line := fmt.Sprintf("%s=%s\n", key, val)
+		if _, err := f.WriteString(line); err != nil {
+			return fmt.Errorf("failed to write to env file: %w", err)
+		}
+	}
+
+	c.logger.Debug("Successfully wrote environment variables", "file", filePath)
+
+	return nil
 }
 
 func (c ServiceClient) CreateService(name string, executable string, service_start_name string, username string, password string, args []string) error {
